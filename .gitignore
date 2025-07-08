@@ -1,0 +1,59 @@
+# -----------------------
+# General OS/Editor Junk
+# -----------------------
+.DS_Store
+*.log
+*.swp
+*.pyc
+*.class
+.history
+.atom/
+.svn/
+
+# -----------------------
+# IDEs and Tools
+# -----------------------
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+# Uncomment if you don’t want to track VS Code settings
+#.vscode/
+
+# Swift/Apple
+.swiftpm/
+
+# -----------------------
+# Dart / Flutter
+# -----------------------
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+/build/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+# -----------------------
+# Android
+# -----------------------
+android/.gradle/
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# -----------------------
+# Symbolication and Obfuscation
+# -----------------------
+app.*.symbols
+app.*.map.json
+
+# -----------------------
+# Migration / Misc Tools
+# -----------------------
+migrate_working_dir/

@@ -1,0 +1,46 @@
+name: go_stream
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  webview_flutter:
+  dynamic_color:
+  google_fonts:
+  flutter_toggle_button:
+  shared_preferences:
+
+dev_dependencies:
+  flutter_launcher_icons:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+  package_rename:
+
+package_rename_config:
+  android:
+    app_name: Go Stream
+    package_name: com.hivemind.gostream
+    override_old_package: com.hiveMind.gostream
+    lang: kotlin
+
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+
+flutter_launcher_icons:
+  image_path: "assets/logo.png"
+  android: true
