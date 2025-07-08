@@ -1,16 +1,54 @@
-# go_stream
+# 🎬 goStream — IMDb Movie Streaming App
 
-A new Flutter project.
+A simple Flutter app to stream movies using IMDb IDs or IMDb URLs.  
+Supports recent searches, favorites, and dynamic theming.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## ✨ Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🔍 Search by IMDb ID or URL (e.g. `tt4154796` or `https://www.imdb.com/title/tt4154796/`)
+- 📺 Watch movies via `vidsrc.xyz` in a WebView
+- ⭐ Mark favorites and view them anytime
+- 🕘 Keeps track of recent searches
+- 🌙 Supports dynamic theming (Material You)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Flutter SDK installed
+- Android or iOS device/emulator
+
+### Run the app
+
+```bash
+git clone https://github.com/Harish-Srinivas-07/goStream.git
+cd goStream
+flutter pub get
+flutter run
+````
+
+
+
+## 📦 Packages Used
+
+* `webview_flutter`
+* `shared_preferences`
+* `dynamic_color`
+* `google_fonts`
+
+
+## 💡 Example IMDb IDs or URLs
+
+You can enter either an IMDb ID or a full IMDb URL:
+
+* `tt4154796` — Avengers: Endgame
+* `https://www.imdb.com/title/tt1375666/` — Inception
+* `tt0133093` — The Matrix
+
+
+
+> Give this repo a ⭐ if you found it useful!
