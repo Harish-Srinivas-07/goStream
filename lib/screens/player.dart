@@ -1,36 +1,45 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_stream/screens/search.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:page_transition/page_transition.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'models/movie.dart';
-import 'models/shimmer.dart';
-import 'shared/constants.dart';
+import '../models/movie.dart';
+import '../models/shimmer.dart';
+import '../shared/constants.dart';
+import '../shared/datasync.dart';
 
-class MoviePlayerPage extends StatefulWidget {
+class MoviePlayer extends StatefulWidget {
   final Movie movie;
-  const MoviePlayerPage({super.key, required this.movie});
+  const MoviePlayer({super.key, required this.movie});
 
   @override
-  State<MoviePlayerPage> createState() => _MoviePlayerPageState();
+  State<MoviePlayer> createState() => _MoviePlayerState();
 }
 
-class _MoviePlayerPageState extends State<MoviePlayerPage> {
+class _MoviePlayerState extends State<MoviePlayer> {
   WebViewController? _webViewController;
 
   bool _isLoadingDetails = false;
   late Movie _movie;
   bool _isFavourite = false;
+  List<Movie> randomMovies = [];
 
   @override
   void initState() {
     super.initState();
     _movie = widget.movie;
     _isFavourite = favouriteMovieIds.contains(_movie.imdbId);
+    randomMovies = _getRandomMovies(_movie.imdbId);
+    updateRecentWatches(_movie.imdbId);
     _fetchDetailsIfNeeded();
   }
 
@@ -50,42 +59,6 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
           )
           ..loadRequest(Uri.parse(allowedUrl));
   }
-
-  // omdb api
-  // Future<void> _fetchDetailsIfNeeded() async {
-  //   if (_movie.posterUrl != null && _movie.title != _movie.imdbId) return;
-
-  //   setState(() => _isLoadingDetails = true);
-
-  //   final apiKey = 'key';
-  //   final url = 'http://www.omdbapi.com/?i=${_movie.imdbId}&apikey=$apiKey';
-
-  //   final res = await http.get(Uri.parse(url));
-  //   if (res.statusCode == 200) {
-  //     final data = jsonDecode(res.body);
-  //     if (data['Response'] == 'True') {
-  //       setState(() {
-  //         _movie = _movie.copyWith(
-  //           title: data['Title'],
-  //           year: data['Year'],
-  //           posterUrl: data['Poster'] != 'N/A' ? data['Poster'] : null,
-  //           plot: data['Plot'] != 'N/A' ? data['Plot'] : null,
-  //           genres: (data['Genre'] as String?)?.split(', ').toList(),
-  //           rating:
-  //               (data['imdbRating'] != 'N/A')
-  //                   ? double.tryParse(data['imdbRating'])
-  //                   : null,
-  //           votes:
-  //               (data['imdbVotes'] != 'N/A')
-  //                   ? int.tryParse(data['imdbVotes'].replaceAll(',', ''))
-  //                   : null,
-  //         );
-  //         debugPrint('--> here the movie details $_movie');
-  //       });
-  //     }
-  //   }
-  //   setState(() => _isLoadingDetails = false);
-  // }
 
   Future<void> _fetchDetailsIfNeeded() async {
     final existingIndex = topMovies.indexWhere(
@@ -191,15 +164,60 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
     setState(() => _isLoadingDetails = false);
   }
 
-  Future<void> loadFavouriteMovieIds() async {
-    final prefs = await SharedPreferences.getInstance();
-    final favList = prefs.getStringList('favouriteMovieIds') ?? [];
-    favouriteMovieIds = favList;
+ List<Movie> _getRandomMovies(String excludeId) {
+    final otherMovies = topMovies.where((m) => m.imdbId != excludeId).toList();
+
+    otherMovies.shuffle(Random());
+
+    // Ensure all 10 movies have different imdbId
+    final unique = <String>{};
+    final result = <Movie>[];
+
+    for (final movie in otherMovies) {
+      if (unique.length >= 10) break;
+      if (unique.add(movie.imdbId)) {
+        result.add(movie);
+      }
+    }
+
+    return result;
   }
 
-  Future<void> saveFavouriteMovieIds() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('favouriteMovieIds', favouriteMovieIds);
+
+  Widget buildMovieCard(Movie movie) {
+    return GestureDetector(
+      onTap: () {
+        randomMovies = _getRandomMovies(_movie.imdbId);
+        _movie = movie;
+        _isFavourite = favouriteMovieIds.contains(_movie.imdbId);
+        setState(() {});
+        _fetchDetailsIfNeeded();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: CachedNetworkImage(
+              imageUrl: movie.posterUrl ?? '',
+              height: 220,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              placeholder:
+                  (context, url) =>
+                      const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.image),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            movie.title,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.gabarito(fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -209,13 +227,29 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          movie.title,
-          style: GoogleFonts.gabarito(fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
+    title: Text(
+      movie.title,
+      style: GoogleFonts.gabarito(fontWeight: FontWeight.w600),
+    ),
+    backgroundColor: scheme.primary,
+    foregroundColor: scheme.onPrimary,
+    actions: [
+      IconButton(
+        icon: const Icon(Icons.search),
+        tooltip: 'Search Movies',
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageTransition(
+              type: PageTransitionType.rightToLeft,
+              child: ImdbSearch(),
+              duration: const Duration(milliseconds: 300),
+            ),
+          );
+        },
       ),
+    ],
+  ),
       body: Column(
         children: [
           // Top 1/3 WebView Player
@@ -237,21 +271,28 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 12),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Poster
-                        ClipRRect(
+                       ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            movie.posterUrl ?? '',
+                          child: CachedNetworkImage(
+                            imageUrl: movie.posterUrl ?? '',
                             height: 150,
                             width: 100,
                             fit: BoxFit.cover,
-                            errorBuilder:
-                                (_, __, ___) => const Icon(Icons.image),
+                            placeholder:
+                                (context, url) => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                            errorWidget:
+                                (context, url, error) =>
+                                    const Icon(Icons.image),
                           ),
                         ),
+
                         const SizedBox(width: 16),
 
                         // Movie Info
@@ -270,7 +311,7 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                               if (movie.rating != null)
                                 Text(
                                   '⭐ ${movie.rating} / 10  •  ${movie.votes} votes',
-                                  style: TextStyle(
+                                  style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     color: Colors.grey[600],
                                   ),
@@ -279,7 +320,7 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                               if (movie.plot != null)
                                 Text(
                                   movie.plot!,
-                                  style: TextStyle(fontSize: 14),
+                                  style: GoogleFonts.poppins(fontSize: 12),
                                 ),
                             ],
                           ),
@@ -287,37 +328,101 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    TextButton.icon(
-                      onPressed: () async {
-                        if (_isFavourite) {
-                          favouriteMovieIds.remove(_movie.imdbId);
-                        } else {
-                          favouriteMovieIds.add(_movie.imdbId);
-                        }
-                        _isFavourite = !_isFavourite;
-                        setState(() {});
-                        await saveFavouriteMovieIds();
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton.icon(
+                            onPressed: () async {
+                              if (_isFavourite) {
+                                favouriteMovieIds.remove(_movie.imdbId);
+                              } else {
+                                favouriteMovieIds.add(_movie.imdbId);
+                              }
+                              _isFavourite = !_isFavourite;
+                              setState(() {});
+                              await saveFavouriteMovieIds();
+                            },
+                            icon: Icon(
+                              _isFavourite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: Colors.red,
+                            ),
+                            label: Text(
+                              _isFavourite
+                                  ? 'Remove from Fav'
+                                  : 'Add to Favourites',
+                              style:  GoogleFonts.gabarito(color: Colors.red),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              // backgroundColor: Colors.red.withAlpha((256*0.08).toInt()),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          icon: const Icon(Icons.share),
+                          onPressed: () {
+                            final shareText = '''
+🎬 ${_movie.title} (${_movie.year})
+
+${_movie.plot ?? 'Download Go Stream now !'}
+
+⭐ ${_movie.rating?.toStringAsFixed(1) ?? '-'} / 10 (${_movie.votes ?? '-'} votes)
+Genres: ${_movie.genres?.join(', ') ?? 'N/A'}
+Runtime: ${_movie.runtimeMinutes ?? 'N/A'} minutes
+
+Watch on IMDb:
+https://www.imdb.com/title/${_movie.imdbId}/
+''';
+
+                            SharePlus.instance.share(
+                              ShareParams(
+                                text: shareText,
+                                title: 'Check out this movie: ${_movie.title}',
+                              ),
+                            );
+                          },
+
+                          tooltip: 'Share Movie',
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+                    // more like this
+                    Text(
+                      'More Like This',
+                      style: GoogleFonts.gabarito(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 8),
+                      itemCount: randomMovies.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.7,
+                          ),
+                      itemBuilder: (context, index) {
+                        final movie = randomMovies[index];
+                        return buildMovieCard(movie);
                       },
-                      icon: Icon(
-                        _isFavourite ? Icons.favorite : Icons.favorite_border,
-                        color: Colors.red,
-                      ),
-                      label: Text(
-                        _isFavourite
-                            ? 'Remove from Favourites'
-                            : 'Add to Favourites',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        backgroundColor: Colors.red.withOpacity(0.1),
-                      ),
                     ),
                   ],
                 ),

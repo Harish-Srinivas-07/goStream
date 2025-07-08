@@ -87,3 +87,24 @@ class Movie {
     };
   }
 }
+
+class MovieSearch {
+  final String imdbId;
+  final String title;
+  final String year;
+  final String? posterUrl;
+  final String? actors;
+
+  MovieSearch({
+    required this.imdbId,
+    required this.title,
+    required this.year,
+    this.posterUrl,
+    this.actors,
+  });
+
+  @override
+  String toString() {
+    return '[$imdbId] $title ($year) - $actors\nPoster: $posterUrl';
+  }
+}
