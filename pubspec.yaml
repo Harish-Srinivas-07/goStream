@@ -18,6 +18,11 @@ dependencies:
   google_fonts:
   flutter_toggle_button:
   shared_preferences:
+  http:
+  html:
+  cached_network_image:
+  shimmer:
+  page_transition:
 
 dev_dependencies:
   flutter_launcher_icons:
