@@ -13,6 +13,11 @@ Supports recent searches, favorites, and dynamic theming.
 - 🕘 Keeps track of recent searches
 - 🌙 Supports dynamic theming (Material You)
 
+## 📱 Download APK
+
+➡️ [Download APK (v1.0)](assets/Go_stream_v1.apk)
+
+> Don't forget to enable **"Install from unknown sources"** on your Android device.
 
 
 ## 🚀 Getting Started
