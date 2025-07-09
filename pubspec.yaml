@@ -4,7 +4,7 @@ description: "A new Flutter project."
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.3+1
+version: 1.0.4+1
 
 environment:
   sdk: ^3.7.2
@@ -34,14 +34,14 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^5.0.0
-  package_rename:
+#   package_rename:
 
-package_rename_config:
-  android:
-    app_name: Go Stream
-    package_name: com.hivemind.gostream
-    override_old_package: com.hiveMind.gostream
-    lang: kotlin
+# package_rename_config:
+#   android:
+#     app_name: Go Stream
+#     package_name: com.hivemind.gostream
+#     override_old_package: com.hiveMind.gostream
+#     lang: kotlin
 
 
 flutter:

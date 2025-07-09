@@ -26,13 +26,46 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _searchController = TextEditingController();
+  int _trendingLoadedCount = 10;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 600) {
+        _loadMoreTrending();
+      }
+    });
     getRecentWatches();
     loadFavouriteMovieIds();
     _loadOrFetchTopMovies();
+  }
+
+  bool _isLoadingMore = false;
+
+  void _loadMoreTrending() {
+    if (_isLoadingMore) return;
+
+    final trendingMovies =
+        topMovies.where((m) => !favouriteMovieIds.contains(m.imdbId)).toList();
+
+    if (_trendingLoadedCount < trendingMovies.length) {
+      _isLoadingMore = true;
+
+      // Immediately trigger UI update to show shimmer
+      setState(() {});
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _trendingLoadedCount = (_trendingLoadedCount + 10).clamp(
+          0,
+          trendingMovies.length,
+        );
+        _isLoadingMore = false;
+        setState(() {});
+      });
+    }
   }
 
   Future<void> _loadOrFetchTopMovies() async {
@@ -276,6 +309,7 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -317,10 +351,10 @@ class _HomeState extends State<Home> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Recently Watched',
+          'Recently Watched'.toUpperCase(),
           style: GoogleFonts.gabarito(
             fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
         ),
 
@@ -441,8 +475,9 @@ class _HomeState extends State<Home> {
     final scheme = Theme.of(context).colorScheme;
     final favouriteMovies =
         topMovies.where((m) => favouriteMovieIds.contains(m.imdbId)).toList();
-    final trendingMovies =
+    final trendingAll =
         topMovies.where((m) => !favouriteMovieIds.contains(m.imdbId)).toList();
+    final trendingToDisplay = trendingAll.take(_trendingLoadedCount).toList();
 
     final recentMovies =
         recentWatchIds
@@ -467,11 +502,17 @@ class _HomeState extends State<Home> {
           elevation: 0,
           title: null,
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(40),
+            preferredSize: const Size.fromHeight(25),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // app logo
+                  // Padding(
+                  //   padding: const EdgeInsets.only(right: 8),
+                  //   child: Image.asset('assets/logo.png', height: 35),
+                  // ),
                   Expanded(
                     child: InkWell(
                       borderRadius: BorderRadius.circular(40),
@@ -487,7 +528,7 @@ class _HomeState extends State<Home> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
-                          vertical: 16,
+                          vertical: 10,
                         ),
                         decoration: BoxDecoration(
                           color: scheme.onSurface.withAlpha(
@@ -539,6 +580,7 @@ class _HomeState extends State<Home> {
           children: [
             Expanded(
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.all(16),
                 children: [
                   if (recentMovies.isNotEmpty) ...[
@@ -551,10 +593,10 @@ class _HomeState extends State<Home> {
 
                   if (favouriteMovies.isNotEmpty) ...[
                     Text(
-                      '❤️ Your Favourites',
+                      '❤️ Your Favourites'.toUpperCase(),
                       style: GoogleFonts.gabarito(
                         fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
@@ -577,14 +619,14 @@ class _HomeState extends State<Home> {
                     // const SizedBox(height: 24),
                   ],
 
-                  if (trendingMovies.isNotEmpty) ...[
+                  if (trendingToDisplay.isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Text(
-                        '🔥 Trending Now',
+                        '🔥 Trending Now'.toUpperCase(),
                         style: GoogleFonts.gabarito(
                           fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -592,7 +634,11 @@ class _HomeState extends State<Home> {
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: trendingMovies.length,
+                      itemCount:
+                          (_trendingLoadedCount < trendingAll.length)
+                              ? _trendingLoadedCount + 4
+                              : _trendingLoadedCount,
+
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 12,
@@ -600,7 +646,11 @@ class _HomeState extends State<Home> {
                         childAspectRatio: .65,
                       ),
                       itemBuilder: (context, index) {
-                        final movie = trendingMovies[index];
+                        if (index >= trendingToDisplay.length) {
+                          return movieCardShimmer(context);
+                        }
+
+                        final movie = trendingToDisplay[index];
                         return buildMovieCard(movie);
                       },
                     ),

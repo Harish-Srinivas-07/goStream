@@ -18,19 +18,11 @@ No login required. No redirections. Just search and stream. ✨
 - 🧠 Smart fallback: If the IMDb ID is detected in input, it auto-redirects to player
 
 
-## 📱 Download APK
-
-➡️ [Download APK (v1.0)](assets/goStream-v3.apk)
-
-> Enable **"Install from unknown sources"** in your Android settings.
-
-
 ## ⚙️ Settings
 
 - Toggle **Dark Mode**
 - **Clear Cache & Preferences**  
 - View **App Info** (version, package name, install/update time)
-- Support link to the [GitHub repo](https://github.com/Harish-Srinivas-07/goStream)
 
 
 ## 🚀 Getting Started

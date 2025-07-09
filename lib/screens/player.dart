@@ -452,6 +452,7 @@ https://www.imdb.com/title/${_movie.imdbId}/
                                 ClipboardData(text: streamUrl),
                               );
 
+                              if (!mounted) return;
                               final scheme = Theme.of(context).colorScheme;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

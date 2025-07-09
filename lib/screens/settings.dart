@@ -22,7 +22,10 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _loadPackageInfo();
-    isDarkMode = ThemeController.isDark;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      isDarkMode = ThemeController.isDark;
+      setState(() {});
+    });
   }
 
   Future<void> _clearCacheAndPrefs() async {
@@ -60,6 +63,40 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
+  Widget _infoRow(String label, String value, ColorScheme scheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: GoogleFonts.gabarito(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: scheme.primary,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.gabarito(
+                fontSize: 14,
+                color: scheme.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -81,144 +118,260 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              // padding: const EdgeInsets.all(16),
               children: [
-                const SizedBox(height: 16),
-
+                // const SizedBox(height: 16),
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      packageInfo.appName,
-                      style: GoogleFonts.gabarito(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: scheme.primary,
+                    const SizedBox(height: 16),
+
+                    Center(
+                      child: Text(
+                        packageInfo.appName,
+                        style: GoogleFonts.gabarito(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: scheme.onSurface,
+                          letterSpacing: 1,
+                        ),
                       ),
                     ),
+
                     const SizedBox(height: 4),
-                    Text(
-                      'Version: ${packageInfo.version} (${packageInfo.buildNumber})',
-                      style: GoogleFonts.gabarito(
-                        fontSize: 14,
-                        color: scheme.onSurfaceVariant,
+                    Center(
+                      child: Text(
+                        'APP INFO',
+                        style: GoogleFonts.gabarito(
+                          fontSize: 12,
+                          color: scheme.primary,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.3,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Package: ${packageInfo.packageName}',
-                      style: GoogleFonts.gabarito(
-                        fontSize: 14,
-                        color: scheme.onSurfaceVariant,
-                      ),
+
+                    const SizedBox(height: 12),
+                    // Divider(
+                    //   thickness: 0.8,
+                    //   color: scheme.outline.withOpacity(0.3),
+                    // ),
+                    const SizedBox(height: 12),
+
+                    _infoRow(
+                      'VERSION',
+                      '${packageInfo.version} (${packageInfo.buildNumber})',
+                      scheme,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Signature: ${packageInfo.buildSignature.isNotEmpty ? packageInfo.buildSignature : 'N/A'}',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.gabarito(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
-                      ),
+                    _infoRow('PACKAGE', packageInfo.packageName, scheme),
+                    _infoRow(
+                      'SIGNATURE',
+                      packageInfo.buildSignature.isNotEmpty
+                          ? packageInfo.buildSignature
+                          : 'N/A',
+                      scheme,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Installed via: ${packageInfo.installerStore ?? 'Unknown'}',
-                      style: GoogleFonts.gabarito(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
-                      ),
+                    _infoRow(
+                      'INSTALLER',
+                      packageInfo.installerStore ?? 'Unknown',
+                      scheme,
                     ),
                     if (packageInfo.installTime != null)
-                      Text(
-                        'Install time: ${packageInfo.installTime!.toLocal()}',
-                        style: GoogleFonts.gabarito(
-                          fontSize: 13,
-                          color: scheme.onSurfaceVariant,
-                        ),
+                      _infoRow(
+                        'INSTALLED ON',
+                        packageInfo.installTime!
+                            .toLocal()
+                            .toString()
+                            .split('.')
+                            .first,
+                        scheme,
                       ),
                     if (packageInfo.updateTime != null)
-                      Text(
-                        'Last update: ${packageInfo.updateTime!.toLocal()}',
-                        style: GoogleFonts.gabarito(
-                          fontSize: 13,
-                          color: scheme.onSurfaceVariant,
-                        ),
+                      _infoRow(
+                        'LAST UPDATE',
+                        packageInfo.updateTime!
+                            .toLocal()
+                            .toString()
+                            .split('.')
+                            .first,
+                        scheme,
                       ),
-                    const SizedBox(height: 24),
                   ],
                 ),
 
                 const SizedBox(height: 10),
                 const Divider(),
-                const SizedBox(height: 24),
+                Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  // decoration: BoxDecoration(
+                  //   borderRadius: BorderRadius.circular(12),
+                  //   color: Theme.of(
+                  //     context,
+                  //   ).colorScheme.surfaceVariant.withOpacity(0.1),
+                  // ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Appearance".toUpperCase(),
+                        style: GoogleFonts.gabarito(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.primary,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ValueListenableBuilder<ThemeMode>(
+                        valueListenable: ThemeController.themeNotifier,
+                        builder: (context, mode, _) {
+                          final isDark = mode == ThemeMode.dark;
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    isDark ? Icons.dark_mode : Icons.light_mode,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Dark Mode',
+                                    style: GoogleFonts.gabarito(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Switch.adaptive(
+                                value: isDark,
+                                onChanged:
+                                    (value) =>
+                                        ThemeController.toggleTheme(value),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
 
-                // Settings UI continues...
-                Text(
-                  "Appearance".toUpperCase(),
-                  style: GoogleFonts.gabarito(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  // Optional: Uncomment this to give it a light background like Appearance
+                  // decoration: BoxDecoration(
+                  //   borderRadius: BorderRadius.circular(12),
+                  //   color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.05),
+                  // ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Having trouble with player?".toUpperCase(),
+                        style: GoogleFonts.gabarito(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.primary,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: _clearCacheAndPrefs,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Clear Cache & Preferences',
+                              style: GoogleFonts.gabarito(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.red,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              // decoration: BoxDecoration(
+                              //   color: Colors.red.withOpacity(0.1),
+                              //   borderRadius: BorderRadius.circular(8),
+                              // ),
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                ValueListenableBuilder<ThemeMode>(
-                  valueListenable: ThemeController.themeNotifier,
-                  builder: (context, mode, _) {
-                    final isDark = mode == ThemeMode.dark;
-                    return SwitchListTile(
-                      value: isDark,
-                      onChanged: (value) {
-                        ThemeController.toggleTheme(value);
-                      },
-                      title: const Text('Dark Mode'),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 20),
-                Text(
-                  "Having trouble with Player?".toUpperCase(),
-                  style: GoogleFonts.gabarito(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
-                  title: Text(
-                    'Clear Cache & Preferences',
-                    style: GoogleFonts.gabarito(color: Colors.red),
-                  ),
-                  onTap: _clearCacheAndPrefs,
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
               ],
             ),
           ),
 
-          Container(
-            margin: const EdgeInsets.only(top: 15),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            // decoration: BoxDecoration(
-            //   color: Colors.yellow.withAlpha(40),
-            //   border: Border.all(color: Colors.yellow),
-            //   borderRadius: BorderRadius.circular(12),
-            // ),
-            child: GestureDetector(
-              onTap: () {
-                launchUrl(
-                  Uri.parse('https://github.com/Harish-Srinivas-07/goStream'),
-                );
-              },
+          Divider(
+            color: Theme.of(context).colorScheme.outline,
+            height: 1,
+            thickness: 1,
+          ),
+
+          GestureDetector(
+            onTap: () {
+              launchUrl(
+                Uri.parse('https://github.com/Harish-Srinivas-07/goStream'),
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              // decoration: BoxDecoration(
+              //   color: Colors.yellow.withAlpha(40),
+              //   border: Border.all(color: Colors.yellow),
+              //   borderRadius: BorderRadius.circular(12),
+              // ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 // mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.star, color: Colors.orange),
                   SizedBox(width: 8),
-                  Text(
-                    'Like this project? Star it on GitHub! ',
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                  Text.rich(
+                    TextSpan(
+                      text: 'Like this project? Star it on ',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'GitHub!',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.primary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
