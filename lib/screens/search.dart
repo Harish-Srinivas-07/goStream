@@ -17,6 +17,7 @@ class ImdbSearch extends StatefulWidget {
 class _ImdbSearchState extends State<ImdbSearch> {
   final TextEditingController _controller = TextEditingController();
   Future<List<MovieSearch>>? _searchResults;
+  final FocusNode _focusNode = FocusNode();
 
   void _performSearch(String query) {
     FocusScope.of(context).unfocus();
@@ -24,6 +25,22 @@ class _ImdbSearchState extends State<ImdbSearch> {
     setState(() {
       _searchResults = fetchSearchResults(query.trim());
     });
+  }
+
+  
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(milliseconds: 300), () {
+      _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -46,6 +63,7 @@ class _ImdbSearchState extends State<ImdbSearch> {
                 children: [
                   Expanded(
                     child: TextField(
+                   focusNode: _focusNode,
                       controller: _controller,
                       onChanged: (_) => setState(() {}),
                       onSubmitted: _performSearch,

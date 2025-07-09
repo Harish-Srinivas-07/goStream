@@ -27,9 +27,9 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    getRecentWatches();
     loadFavouriteMovieIds();
     _loadOrFetchTopMovies();
-    getRecentWatches();
   }
 
   Future<void> _loadOrFetchTopMovies() async {
@@ -447,63 +447,57 @@ class _HomeState extends State<Home> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: scheme.surface,
-        // appBar: AppBar(
-        //   title: Text(
-        //     'GO Stream',
-        //     style: GoogleFonts.gabarito(fontWeight: FontWeight.w600),
-        //   ),
-        //   backgroundColor: scheme.primary,
-        //   foregroundColor: scheme.onPrimary,
-        //   elevation: 0,
-        // ),
-        body: Column(
-          children: [
-            SizedBox(height: MediaQuery.of(context).padding.top),
-
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 14,
-                right: 14,
-                bottom: 5,
-                top: 10,
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(40),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.rightToLeft,
-                      child: ImdbSearch(),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
+        appBar: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+              bottom: 10,
+              top: 10,
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(40),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.rightToLeft,
+                    child: ImdbSearch(),
                   ),
-                  decoration: BoxDecoration(
-                    color: scheme.onSurface.withAlpha((256 * 0.08).toInt()),
-                    borderRadius: BorderRadius.circular(40),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Search movies...',
-                        style: GoogleFonts.gabarito(
-                          fontSize: 16,
-                          color: Theme.of(context).hintColor,
-                        ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: scheme.onSurface.withAlpha((256 * 0.08).toInt()),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.search, color: scheme.primary),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Search movies...',
+                      style: GoogleFonts.gabarito(
+                        fontSize: 16,
+                        color: Theme.of(context).hintColor,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
+          ),
 
+          backgroundColor: scheme.surface,
+          foregroundColor: scheme.surface,
+          elevation: 0,
+        ),
+        body: Column(
+          children: [
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16),
