@@ -116,3 +116,20 @@ Widget movieInfoShimmer(BuildContext context) {
     ),
   );
 }
+
+Widget movieCardShimmer(BuildContext context) {
+  final scheme = Theme.of(context).colorScheme;
+
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(12),
+    child: Shimmer.fromColors(
+      baseColor: scheme.surfaceContainerHighest.withAlpha((256 * 0.4).toInt()),
+      highlightColor: scheme.primary.withAlpha((256 * 0.3).toInt()),
+      child: Container(
+        height: 220,
+        width: double.infinity,
+        color: scheme.surfaceContainerHighest,
+      ),
+    ),
+  );
+}

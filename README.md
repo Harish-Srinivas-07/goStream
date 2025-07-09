@@ -1,23 +1,36 @@
 # 🎬 goStream — IMDb Movie Streaming App
 
-A simple Flutter app to stream movies using IMDb IDs or IMDb URLs.  
-Supports recent searches, favorites, and dynamic theming.
+A clean, fast, and ad-free Flutter app to stream movies via IMDb & vidsrc.  
+No login required. No redirections. Just search and stream. ✨
 
----
 
 ## ✨ Features
 
-- 🔍 Search by IMDb ID or URL (e.g. `tt4154796` or `https://www.imdb.com/title/tt4154796/`)
-- 📺 Watch movies via `vidsrc.xyz` in a WebView
-- ⭐ Mark favorites and view them anytime
-- 🕘 Keeps track of recent searches
-- 🌙 Supports dynamic theming (Material You)
+- 🔍 Search movies by **IMDb name or ID**
+  - e.g. `inception`, `tt4154796`, or `https://www.imdb.com/title/tt1375666/`
+- 📺 Watch instantly using `vidsrc.xyz` in an embedded WebView or open in browser
+- ❤️ Mark favorites — view them anytime (no login needed)
+- 🕘 See your recently watched movies
+- 🌓 Toggle **Dark / Light theme** from Settings
+- 🗑️ Clear cache and preferences with a tap
+- ✅ No ads, no account, no redirections
+- 🌈 Material You + Dynamic Theming supported
+- 🧠 Smart fallback: If the IMDb ID is detected in input, it auto-redirects to player
+
 
 ## 📱 Download APK
 
-➡️ [Download APK (v1.0)](assets/Go_stream_v1.apk)
+➡️ [Download APK (v1.0)](assets/goStream-v3.apk)
 
-> Don't forget to enable **"Install from unknown sources"** on your Android device.
+> Enable **"Install from unknown sources"** in your Android settings.
+
+
+## ⚙️ Settings
+
+- Toggle **Dark Mode**
+- **Clear Cache & Preferences**  
+- View **App Info** (version, package name, install/update time)
+- Support link to the [GitHub repo](https://github.com/Harish-Srinivas-07/goStream)
 
 
 ## 🚀 Getting Started
@@ -37,23 +50,35 @@ flutter run
 ````
 
 
-
 ## 📦 Packages Used
 
-* `webview_flutter`
-* `shared_preferences`
-* `dynamic_color`
-* `google_fonts`
+* [`webview_flutter`](https://pub.dev/packages/webview_flutter)
+* [`shared_preferences`](https://pub.dev/packages/shared_preferences)
+* [`google_fonts`](https://pub.dev/packages/google_fonts)
+* [`dynamic_color`](https://pub.dev/packages/dynamic_color)
+* [`package_info_plus`](https://pub.dev/packages/package_info_plus)
+* [`shimmer`](https://pub.dev/packages/shimmer)
+* [`page_transition`](https://pub.dev/packages/page_transition)
+* [`url_launcher`](https://pub.dev/packages/url_launcher)
 
 
-## 💡 Example IMDb IDs or URLs
+## 💡 Example Inputs
 
-You can enter either an IMDb ID or a full IMDb URL:
+Search bar accepts:
 
-* `tt4154796` — Avengers: Endgame
-* `https://www.imdb.com/title/tt1375666/` — Inception
-* `tt0133093` — The Matrix
+* Movie title: `Inception`, `The Matrix`, `Avengers`
+* IMDb ID: `tt0133093`, `tt4154796`
+* IMDb URL: `https://www.imdb.com/title/tt1375666/`
 
+---
 
+## ⚠️ Disclaimer
 
-> Give this repo a ⭐ if you found it useful!
+> **Note:** This app is a simple experimental demonstration using IMDb web scraping and the vidsrc streaming endpoint.
+> It explores non-protected content delivery mechanisms purely for educational purposes.
+> I do not own or host any of the content shown by IMDb or vidsrc. I'm only the developer showcasing a proof-of-concept.
+
+⭐ Star this repo if you found it useful!
+
+Happy streaming! 🍿
+

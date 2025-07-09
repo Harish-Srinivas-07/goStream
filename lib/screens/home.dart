@@ -7,12 +7,15 @@ import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../models/movie.dart';
+import '../models/shimmer.dart';
 import 'player.dart';
 import '../shared/constants.dart';
 import '../shared/datasync.dart';
 import 'search.dart';
+import 'settings.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -140,6 +143,8 @@ class _HomeState extends State<Home> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            final scheme = Theme.of(context).colorScheme;
+
             return Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -155,8 +160,19 @@ class _HomeState extends State<Home> {
                       width: double.infinity,
                       fit: BoxFit.cover,
                       placeholder:
-                          (context, url) =>
-                              const Center(child: CircularProgressIndicator()),
+                          (context, url) => Shimmer.fromColors(
+                            baseColor: scheme.surfaceContainerHighest.withAlpha(
+                              (256 * 0.4).toInt(),
+                            ),
+                            highlightColor: scheme.primary.withAlpha(
+                              (256 * 0.3).toInt(),
+                            ),
+                            child: Container(
+                              height: 300,
+                              width: double.infinity,
+                              color: scheme.surfaceContainerHighest,
+                            ),
+                          ),
                       errorWidget:
                           (context, url, error) =>
                               const Icon(Icons.image_not_supported),
@@ -205,10 +221,10 @@ class _HomeState extends State<Home> {
                               getRecentWatches();
                             });
                           },
-                          icon: const Icon(Icons.ondemand_video),
+                          icon: const Icon(Icons.play_circle_filled_outlined),
                           label: Text(
                             'Watch Now',
-                            style: GoogleFonts.gabarito(),
+                            style: GoogleFonts.gabarito(fontSize: 15),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
@@ -278,8 +294,7 @@ class _HomeState extends State<Home> {
               width: double.infinity,
               fit: BoxFit.cover,
               placeholder:
-                  (context, url) =>
-                      const Center(child: CircularProgressIndicator()),
+                  (context, url) => Center(child: movieCardShimmer(context)),
               errorWidget: (context, url, error) => const Icon(Icons.image),
             ),
           ),
@@ -350,18 +365,16 @@ class _HomeState extends State<Home> {
                           height: 48,
                           fit: BoxFit.cover,
                           placeholder:
-                              (_, __) => Container(
-                                width: 36,
-                                height: 48,
-                                color: scheme.surface,
-                                child: const Center(
-                                  child: SizedBox(
-                                    width: 14,
-                                    height: 14,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
+                              (_, __) => Shimmer.fromColors(
+                                baseColor: scheme.surfaceContainerHighest
+                                    .withAlpha((256 * 0.4).toInt()),
+                                highlightColor: scheme.primary.withAlpha(
+                                  (256 * 0.3).toInt(),
+                                ),
+                                child: Container(
+                                  width: 36,
+                                  height: 48,
+                                  color: scheme.surfaceContainerHighest,
                                 ),
                               ),
                           errorWidget:
@@ -369,6 +382,7 @@ class _HomeState extends State<Home> {
                                   const Icon(Icons.broken_image, size: 18),
                         ),
                       ),
+
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -448,53 +462,78 @@ class _HomeState extends State<Home> {
       child: Scaffold(
         backgroundColor: scheme.surface,
         appBar: AppBar(
-          title: Padding(
-            padding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-              bottom: 10,
-              top: 10,
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(40),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.rightToLeft,
-                    child: ImdbSearch(),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: scheme.onSurface.withAlpha((256 * 0.08).toInt()),
-                  borderRadius: BorderRadius.circular(40),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: scheme.primary),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Search movies...',
-                      style: GoogleFonts.gabarito(
-                        fontSize: 16,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
           backgroundColor: scheme.surface,
           foregroundColor: scheme.surface,
           elevation: 0,
+          title: null,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(40),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(40),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                            type: PageTransitionType.rightToLeft,
+                            child: ImdbSearch(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: scheme.onSurface.withAlpha(
+                            (256 * 0.08).toInt(),
+                          ),
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: scheme.primary),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Search movies...',
+                              style: GoogleFonts.gabarito(
+                                fontSize: 16,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  IconButton(
+                    icon: Icon(
+                      Icons.explore_outlined,
+                      color: scheme.primary,
+                      size: 35,
+                    ),
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        PageTransition(
+                          type: PageTransitionType.rightToLeft,
+                          child: const SettingsPage(),
+                        ),
+                      ).then((_) {
+                        _loadOrFetchTopMovies();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
         body: Column(
           children: [
@@ -527,8 +566,8 @@ class _HomeState extends State<Home> {
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 12,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.7,
+                        mainAxisSpacing: 18,
+                        childAspectRatio: 0.6,
                       ),
                       itemBuilder: (context, index) {
                         final movie = favouriteMovies[index];
@@ -557,8 +596,8 @@ class _HomeState extends State<Home> {
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 12,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: .7,
+                        mainAxisSpacing: 18,
+                        childAspectRatio: .65,
                       ),
                       itemBuilder: (context, index) {
                         final movie = trendingMovies[index];

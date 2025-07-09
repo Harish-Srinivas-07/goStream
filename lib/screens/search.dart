@@ -19,15 +19,6 @@ class _ImdbSearchState extends State<ImdbSearch> {
   Future<List<MovieSearch>>? _searchResults;
   final FocusNode _focusNode = FocusNode();
 
-  void _performSearch(String query) {
-    FocusScope.of(context).unfocus();
-    if (query.trim().isEmpty) return;
-    setState(() {
-      _searchResults = fetchSearchResults(query.trim());
-    });
-  }
-
-  
   @override
   void initState() {
     super.initState();
@@ -43,6 +34,49 @@ class _ImdbSearchState extends State<ImdbSearch> {
     super.dispose();
   }
 
+  void _performSearch(String query) {
+    FocusScope.of(context).unfocus();
+
+    final trimmed = query.trim();
+    final imdbIdRegex = RegExp(r'tt\d{7,}');
+
+    // If it's a direct IMDb ID, skip search and open player
+    if (imdbIdRegex.hasMatch(trimmed)) {
+      final match = imdbIdRegex.firstMatch(trimmed);
+      final imdbId = match?.group(0);
+      if (imdbId != null) {
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.rightToLeft,
+            child: MoviePlayer(
+              movie: Movie(
+                imdbId: imdbId,
+                title: '',
+                year: '',
+                posterUrl: null,
+                plot: null,
+                genres: null,
+                runtimeMinutes: null,
+                rating: null,
+                votes: null,
+                trailerUrl: null,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+    }
+
+    // Otherwise perform regular search
+    if (trimmed.isEmpty) return;
+
+    setState(() {
+      _searchResults = fetchSearchResults(trimmed);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -51,6 +85,14 @@ class _ImdbSearchState extends State<ImdbSearch> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: scheme.onSurface,
+            ),
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Back',
+          ),
           title: Text('', style: GoogleFonts.gabarito(color: scheme.onSurface)),
           backgroundColor: scheme.surface,
           iconTheme: IconThemeData(color: scheme.onSurface),
@@ -63,7 +105,7 @@ class _ImdbSearchState extends State<ImdbSearch> {
                 children: [
                   Expanded(
                     child: TextField(
-                   focusNode: _focusNode,
+                      focusNode: _focusNode,
                       controller: _controller,
                       onChanged: (_) => setState(() {}),
                       onSubmitted: _performSearch,
