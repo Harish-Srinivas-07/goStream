@@ -17,13 +17,16 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool isDarkMode = false;
-
   @override
   void initState() {
     super.initState();
     _loadPackageInfo();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      isDarkMode = ThemeController.isDark;
+      final isDark = ThemeController.isDarkFromContext(context);
+      debugPrint('Current theme isDarkMode: $isDark');
+
+      isDarkMode = isDark;
       setState(() {});
     });
   }
@@ -230,7 +233,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       ValueListenableBuilder<ThemeMode>(
                         valueListenable: ThemeController.themeNotifier,
                         builder: (context, mode, _) {
-                          final isDark = mode == ThemeMode.dark;
+                          final isDark = ThemeController.isDarkFromContext(
+                            context,
+                          );
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

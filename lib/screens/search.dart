@@ -34,8 +34,13 @@ class _ImdbSearchState extends State<ImdbSearch> {
     super.dispose();
   }
 
-  void _performSearch(String query) {
+  void _performSubmit(String query) {
     FocusScope.of(context).unfocus();
+    _performSearch(query.trim());
+  }
+
+  void _performSearch(String query) {
+    // FocusScope.of(context).unfocus();
 
     final trimmed = query.trim();
     final imdbIdRegex = RegExp(r'tt\d{7,}');
@@ -107,8 +112,15 @@ class _ImdbSearchState extends State<ImdbSearch> {
                     child: TextField(
                       focusNode: _focusNode,
                       controller: _controller,
-                      onChanged: (_) => setState(() {}),
-                      onSubmitted: _performSearch,
+                      onChanged: (value) {
+                        setState(() {});
+                        if (value.trim().length >= 3) {
+                          _performSearch(value.trim());
+                        } else {
+                          setState(() => _searchResults = null);
+                        }
+                      },
+                      onSubmitted: _performSubmit,
                       decoration: InputDecoration(
                         isDense: true,
                         hintText: 'Search movies...',
@@ -158,7 +170,7 @@ class _ImdbSearchState extends State<ImdbSearch> {
                       ),
                       child: IconButton(
                         icon: Icon(Icons.search, color: scheme.primary),
-                        onPressed: () => _performSearch(_controller.text),
+                        onPressed: () => _performSubmit(_controller.text),
                         tooltip: 'Search',
                       ),
                     ),
