@@ -3,6 +3,12 @@
 A clean, fast, and ad-free Flutter app to stream movies via IMDb & vidsrc.  
 No login required. No redirections. Just search and stream. ✨
 
+## 📥 Download
+
+[Download Latest goStream APK](https://github.com/Harish-Srinivas-07/goStream/releases/download/v1.0.4/goStream-arm64-v8a-release.apk)
+
+> Built for arm64-v8a Android devices. Make sure to allow unknown sources when installing.
+
 
 ## ✨ Features
 
