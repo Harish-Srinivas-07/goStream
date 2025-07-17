@@ -10,6 +10,8 @@ No login required. No redirections. Just search and stream. ✨
 > Built for arm64-v8a Android devices. Make sure to allow unknown sources when installing.
 
 
+<img width="600" height="450" alt="project-10" src="https://github.com/user-attachments/assets/b2e287ac-cc02-4313-b8a0-10c7f45d6b4d" />
+
 ## ✨ Features
 
 - 🔍 Search movies by **IMDb name or ID**
@@ -46,7 +48,6 @@ cd goStream
 flutter pub get
 flutter run
 ````
-
 
 ## 📦 Packages Used
 
